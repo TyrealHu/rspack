@@ -110,6 +110,10 @@ export interface RawRelayConfig {
   artifactDirectory?: string
   language: 'javascript' | 'typescript' | 'flow'
 }
+export interface RawIgnoreConfig {
+	resourceRegExpSource: string,
+	contextRegExpSource?: string
+}
 export interface RawMinification {
   passes: number
   dropConsole: boolean
@@ -137,6 +141,7 @@ export interface RawBuiltins {
   copy?: RawCopyConfig
   pluginImport?: Array<RawPluginImportConfig>
   relay?: RawRelayConfig
+	ignore?: RawIgnoreConfig
 }
 export interface RawCacheOptions {
   type: string

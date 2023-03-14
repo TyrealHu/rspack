@@ -13,8 +13,8 @@ import type {
 	RawPresetEnv,
 	RawPluginImportConfig,
 	RawCssModulesConfig,
-	RawRelayConfig
-} from "@rspack/binding";
+	RawRelayConfig, RawIgnoreConfig
+} from '@rspack/binding'
 import { loadConfig } from "browserslist";
 import { Optimization } from "..";
 
@@ -43,6 +43,13 @@ export type CssPluginConfig = {
 	modules?: Partial<RawCssModulesConfig>;
 };
 
+export type IgnoreConfig = {
+	resourceRegExp: RegExp,
+	contextRegExp?: RegExp
+}/* | {
+	checkResource: (resource: string, context: string) => boolean
+}*/
+
 export interface Builtins {
 	css?: CssPluginConfig;
 	postcss?: RawPostCssConfig;
@@ -51,6 +58,7 @@ export interface Builtins {
 	react?: RawReactOptions;
 	noEmitAssets?: boolean;
 	define?: Record<string, string | boolean | undefined>;
+	ignore?: IgnoreConfig
 	html?: Array<BuiltinsHtmlPluginConfig>;
 	decorator?: boolean | Partial<RawDecoratorOptions>;
 	minifyOptions?: Partial<RawMinification>;
@@ -182,6 +190,17 @@ function resolveDecorator(
 		},
 		decorator
 	);
+}
+
+function resolveIgnore(
+	ignore: Builtins["ignore"]
+): RawIgnoreConfig | undefined {
+	if (!ignore) return undefined
+
+	return {
+		resourceRegExpSource: ignore.resourceRegExp.source,
+		contextRegExpSource: ignore.contextRegExp?.source
+	}
 }
 
 function resolveProgress(
@@ -326,6 +345,7 @@ export function resolveBuiltinsOptions(
 		react: builtins.react ?? {},
 		noEmitAssets: builtins.noEmitAssets ?? false,
 		define: resolveDefine(builtins.define || {}),
+		ignore: resolveIgnore(builtins.ignore),
 		html: resolveHtml(builtins.html || []),
 		presetEnv,
 		progress: resolveProgress(builtins.progress),
